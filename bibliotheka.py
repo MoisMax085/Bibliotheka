@@ -1,5 +1,7 @@
 import os
 import sqlite3
+import time
+
 def create_table(cursor):
     cursor.execute("""CREATE TABLE bibliothek (id INTEGER PRIMARY KEY AUTOINCREMENT, autor TEXT, name_book TEXT, age INTEGER, link TEXT)""")
 
@@ -14,17 +16,14 @@ def check_table():
         cursor = connection.cursor()
         return cursor, connection
 
-
-
-
 def choose_option():
     try:
         answer = int(input("Что бы вы хотели сделать ?\n"
-              "1. Добавить книгу в фонд\n"
-              "2. Найти книгу в фонде\n"
-              "3. Удалить книгу из фонда\n"
-              "4. Выйти из библиотеки\n"
-                "Ваш выбор :"))
+              "    1. Добавить книгу в фонд\n"
+              "    2. Найти книгу в фонде\n"
+              "    3. Удалить книгу из фонда\n"
+              "    4. Выйти из библиотеки\n"
+                "Ваш выбор : "))
         return answer
     except ValueError or TypeError:
         wrong_answer()
@@ -40,26 +39,32 @@ def set_option(answer, cursor, connection):
             delete(cursor, connection)
             return
         case 4:
-            input('\nДля закрытия библиотеки нажмите любую клавишу')
+            input('\nДля закрытия библиотеки нажмите любую клавишу...  ')
             return
 
 def delete(cursor, connection):
     [avtor, name_book, year] = ask_a_n_y_l(key = 2)
+    print('\n Удаляем книгу из библиотеки...')
     cursor.execute(f"DELETE FROM bibliothek WHERE autor=? AND name_book=? AND age=?", (f'{avtor}', f'{name_book}', year))
     connection.commit()
     return
 
 def find(cursor, connection):
     os.system("cls" if os.name == "nt" else "clear")
-    what = input('\nВведите автора книги или название книги:')
+    what = input('\nВведите автора книги или название книги: ')
     os.system("cls" if os.name == "nt" else "clear")
     cursor.execute(f"SELECT * FROM bibliothek WHERE autor LIKE '%{what}%' OR name_book LIKE '%{what}%'")
+    print('Вот что мы нашли в фонде:')
     for i in cursor.fetchall():
         print(' '.join(str(i)).replace('(', "").replace(')', "").replace(' ', '').replace(',', ' '))
+        time.sleep(1)
+    input('Введите любой символ для продолжения...')
+
 def add(cursor, connection):
     [avtor, name_book, year, link] = ask_a_n_y_l(key = 1)
     cursor.execute(f"INSERT INTO bibliothek (autor, name_book, age, link) VALUES ('{avtor}', '{name_book}', {year}, '{link}')")
     connection.commit()
+    print('Добавляем книгу в библиотеку...')
     return
 
 def ask_a_n_y_l(key):
